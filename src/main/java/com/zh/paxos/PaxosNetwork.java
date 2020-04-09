@@ -4,60 +4,38 @@ package com.zh.paxos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * @author raozihao
  * @date 2020/4/5
  */
-interface Network {
-    void send(Msg msg);
 
-    Msg recv();
-}
+class Pipe {
+    private static final Logger bizLogger = LoggerFactory.getLogger(PaxosNetwork.class);
 
-class Pipe implements Network {
-    private static final Logger bizLogger = LoggerFactory.getLogger(Pipe.class);
-    PipedOutputStream write;
-    PipedInputStream read;
-
+    BlockingQueue<Msg> queue;
 
     public Pipe() {
-        try {
-            write = new PipedOutputStream();
-            read = new PipedInputStream(write, 1024);
-        } catch (IOException e) {
-            bizLogger.info("Pipe初始化失败");
-        }
+        queue = new LinkedBlockingQueue<>(1);
     }
 
-    @Override
+
     public void send(Msg msg) {
         try {
-            write.flush();
-            ObjectOutputStream oos = new ObjectOutputStream(write);
-            oos.writeObject(msg);
-            oos.flush();
-        } catch (IOException e) {
+            queue.put(msg);
+        } catch (Exception e) {
             bizLogger.info("send failed", e);
         }
     }
 
-    @Override
     public Msg recv() {
-        byte[] bytes = new byte[1024];
         Msg msg = null;
         try {
-            int length = this.read.read(bytes);
-            if (length != -1) {
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-                msg = (Msg) objectInputStream.readObject();
-                bizLogger.info("nt: recv " + msg);
-            }
-        } catch (IOException | ClassNotFoundException e) {
+            msg = queue.take();
+        } catch (Exception e) {
             bizLogger.error("recv failed", e);
         }
         return msg;
@@ -68,12 +46,11 @@ public class PaxosNetwork {
 
     private static final Logger bizLogger = LoggerFactory.getLogger(PaxosNetwork.class);
 
-
     Map<Integer, Pipe> recvQueue = new HashMap<>();
 
-    public PaxosNetwork(int... acceptors) {
-        for (int acceptor : acceptors) {
-            recvQueue.put(acceptor, new Pipe());
+    public PaxosNetwork(int... roles) {
+        for (int roleId : roles) {
+            recvQueue.put(roleId, new Pipe());
         }
     }
 

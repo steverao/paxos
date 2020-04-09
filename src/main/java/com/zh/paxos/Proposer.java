@@ -10,26 +10,29 @@ import java.util.*;
  * @date 2020/4/5
  */
 public class Proposer {
-    private static final Logger bizLogger = LoggerFactory.getLogger(Proposer.class);
+    private static final Logger bizLogger = LoggerFactory.getLogger(PaxosNetwork.class);
 
-
+    /**
+     * proposal number
+     */
     int lastSeq;
 
     int id;
     /**
-     * the biggest proposal number received by acceptors
+     * The biggest proposal number received from acceptors
      */
-    int key;
+    int prevN;
     /**
-     * proposal value to proposal key
+     * Proposal value to send.
      */
     String value;
-
-//    PaxosNetwork paxosNetwork;
-
+    /**
+     * Key represents the ID of acceptor.
+     * Promise msg received from corresponding acceptor.
+     */
     Map<Integer, Msg> acceptors;
     /**
-     * acceptor number
+     * The List of acceptor number in the system.
      */
     List<Integer> list;
 
@@ -58,7 +61,6 @@ public class Proposer {
             }
             recv = pn.recv(id);
             if (recv == null) {
-                //未收到消息，开始新一轮prepare
                 continue;
             }
             switch (recv.type) {
@@ -71,25 +73,31 @@ public class Proposer {
             }
         }
         //stage 2: receive the promise and propose
+        bizLogger.info("proposer: {} promise {} reached majority ", number(), getMajority());
+        bizLogger.info("proposer: {} starts to propose [{}] : {}", id, number(), value);
         List<Msg> proposes = propose();
         for (Msg m : proposes) {
             pn.send(m);
         }
     }
 
-    // A proposer chooses a new proposal number n and sends a request to
-    // each member of some set of acceptors, asking it to respond with:
-    // (a) A promise never again to accept a proposal numbered less than n, and
-    // (b) The proposal with the highest number less than n that it has accepted, if any.
+    /**
+     * A proposer chooses a new proposal number n and sends a request to
+     * each member of some set of acceptors, asking it to respond with:
+     * (a) A promise never again to accept a proposal numbered less than n, and
+     * (b) The proposal with the highest number less than n that it has accepted, if any.
+     *
+     * @return
+     */
     public List<Msg> prepare() {
         this.lastSeq++;
-        //1.send promise to majority of acceptors
+        // send promise to majority of acceptors
         int majority = getMajority();
         List<Msg> ms = new ArrayList<>(majority);
         Collections.shuffle(this.list);
         for (int i = 0; i < majority; i++) {
             Msg msg = new Msg(this.id, this.list.get(i), this.number(), 0, MessageType.PREPARE.getType(), null);
-            //send msg to dest
+            // send msg to dest
             ms.add(msg);
         }
         return ms;
@@ -98,12 +106,12 @@ public class Proposer {
     public void recvPromise(Msg m) {
         Msg msg = acceptors.get(m.from);
         if (msg.n < m.n) {
-            bizLogger.info("proposer: " + id + " receive a new promise " + m);
+            bizLogger.info("proposer: {} receive a new promise {}", id, m);
             acceptors.put(m.from, m);
-            if (m.prevN > key) {
-                key = m.prevN;
+            if (m.prevN > prevN) {
+                bizLogger.info("proposer updated the value [{}] to {}", value, m.content);
+                prevN = m.prevN;
                 value = m.content;
-                bizLogger.info("proposer updated the value to " + value);
             }
         }
     }
@@ -113,7 +121,7 @@ public class Proposer {
         int cnt = 0;
         for (Msg m : acceptors.values()) {
             if (m.n == this.number()) {
-                Msg mg = new Msg(id, m.dest, this.number(), 0, MessageType.PROPOSE.getType(), value);
+                Msg mg = new Msg(id, m.from, this.number(), 0, MessageType.PROPOSE.getType(), value);
                 msgs.add(mg);
                 cnt++;
             }

@@ -31,6 +31,11 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.6.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.62</version>
+        </dependency>
 
     </dependencies>
 

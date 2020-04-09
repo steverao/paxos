@@ -13,16 +13,20 @@ public class Msg implements Serializable {
     int from;
 
     int dest;
-
+    /**
+     * Message type.
+     */
     int type;
-
+    /**
+     * Message number.
+     */
     int n;
     /**
-     * the accepted proposal number by the acceptor that created the msg
+     * The accepted proposal number by the acceptor that created the msg
      */
     int prevN;
     /**
-     * the accepted proposal content
+     * Message content.
      */
     String content;
 
@@ -35,11 +39,65 @@ public class Msg implements Serializable {
         this.content = content;
     }
 
+    public Msg(Msg msg) {
+        this.from = msg.from;
+        this.dest = msg.dest;
+        this.n = msg.n;
+        this.prevN = msg.prevN;
+        this.type = msg.type;
+        this.content = msg.content;
+    }
+
+
     public Msg() {
     }
 
-    public Msg(int type) {
+    public int getFrom() {
+        return from;
+    }
+
+    public void setFrom(int from) {
+        this.from = from;
+    }
+
+    public int getDest() {
+        return dest;
+    }
+
+    public void setDest(int dest) {
+        this.dest = dest;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
         this.type = type;
+    }
+
+    public int getN() {
+        return n;
+    }
+
+    public void setN(int n) {
+        this.n = n;
+    }
+
+    public int getPrevN() {
+        return prevN;
+    }
+
+    public void setPrevN(int prevN) {
+        this.prevN = prevN;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @Override
