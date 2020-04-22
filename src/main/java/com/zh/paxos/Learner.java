@@ -57,7 +57,7 @@ public class Learner {
         Map<Integer, Msg> acceptValue = new HashMap<>();
         Collection<Msg> values = accepts.values();
         for (Msg m : values) {
-            if (m.type != MessageType.ACCEPT.getType()) continue;
+            if (m.type != MessageType.ACCEPT) continue;
             if (count.containsKey(m.n)) {
                 count.put(m.n, count.get(m.n) + 1);
             } else {

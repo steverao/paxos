@@ -5,34 +5,9 @@ package com.zh.paxos;
  * @date 2020/4/5
  */
 public enum MessageType {
-    PREPARE(0, "Prepare"),
-    PROMISE(1,"Promise"),
-    PROPOSE(2, "Propose"),
-    ACCEPT(3,"Accept");
+    PREPARE,
+    PROMISE,
+    PROPOSE,
+    ACCEPT
 
-
-    private int type;
-
-    private String desc;
-
-    MessageType(int type, String desc) {
-        this.type = type;
-        this.desc = desc;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
 }

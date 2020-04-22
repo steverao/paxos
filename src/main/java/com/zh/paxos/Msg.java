@@ -16,7 +16,7 @@ public class Msg implements Serializable {
     /**
      * Message type.
      */
-    int type;
+    MessageType type;
     /**
      * Message number.
      */
@@ -30,7 +30,7 @@ public class Msg implements Serializable {
      */
     String content;
 
-    public Msg(int from, int dest, int n, int prevN, int type, String content) {
+    public Msg(int from, int dest, int n, int prevN, MessageType type, String content) {
         this.from = from;
         this.dest = dest;
         this.n = n;
@@ -52,6 +52,7 @@ public class Msg implements Serializable {
     public Msg() {
     }
 
+
     public int getFrom() {
         return from;
     }
@@ -68,11 +69,11 @@ public class Msg implements Serializable {
         this.dest = dest;
     }
 
-    public int getType() {
+    public MessageType getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(MessageType type) {
         this.type = type;
     }
 

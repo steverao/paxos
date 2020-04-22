@@ -64,7 +64,7 @@ public class Proposer {
                 continue;
             }
             switch (recv.type) {
-                case 1:
+                case PROMISE:
                     recvPromise(recv);
                     break;
                 default:
@@ -96,7 +96,7 @@ public class Proposer {
         List<Msg> ms = new ArrayList<>(majority);
         Collections.shuffle(this.list);
         for (int i = 0; i < majority; i++) {
-            Msg msg = new Msg(this.id, this.list.get(i), this.number(), 0, MessageType.PREPARE.getType(), null);
+            Msg msg = new Msg(this.id, this.list.get(i), this.number(), 0, MessageType.PREPARE, null);
             // send msg to dest
             ms.add(msg);
         }
@@ -121,7 +121,7 @@ public class Proposer {
         int cnt = 0;
         for (Msg m : acceptors.values()) {
             if (m.n == this.number()) {
-                Msg mg = new Msg(id, m.from, this.number(), 0, MessageType.PROPOSE.getType(), value);
+                Msg mg = new Msg(id, m.from, this.number(), 0, MessageType.PROPOSE, value);
                 msgs.add(mg);
                 cnt++;
             }

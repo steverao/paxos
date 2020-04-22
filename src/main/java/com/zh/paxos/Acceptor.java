@@ -3,6 +3,8 @@ package com.zh.paxos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.zh.paxos.MessageType.*;
+
 /**
  * @author raozihao
  * @date 2020/4/5
@@ -48,14 +50,14 @@ public class Acceptor {
             if (recv == null) continue;
             switch (recv.type) {
                 //prepare
-                case 0:
+                case PREPARE:
                     Msg promise = receivePrepare(recv);
                     if (promise != null) {
                         pn.send(promise);
                     }
                     break;
                 //propose
-                case 2:
+                case PROPOSE:
                     boolean accepted = receivePropose(recv);
                     //send msg to learners
                     if (accepted)
@@ -86,7 +88,7 @@ public class Acceptor {
         }
         bizLogger.info("acceptor: {} [promised: {}, accept: {}] accepted proposal: {}", id, promised, accept, recv);
         this.accept = recv;
-        this.accept.type = MessageType.ACCEPT.getType();
+        this.accept.type = ACCEPT;
         return true;
     }
 
@@ -103,10 +105,10 @@ public class Acceptor {
             bizLogger.info("acceptor: {} abort a message!", id);
         } else {
             if (accept != null) {
-                msg = new Msg(id, recv.from, recv.n, accept.n, MessageType.PROMISE.getType(), accept.content);
+                msg = new Msg(id, recv.from, recv.n, accept.n, PROMISE, accept.content);
                 bizLogger.info("acceptor: {} [promised: {}] promised: {}", id, promised, msg);
             } else {
-                msg = new Msg(id, recv.from, recv.n, 0, MessageType.PROMISE.getType(), null);
+                msg = new Msg(id, recv.from, recv.n, 0, PROMISE, null);
                 bizLogger.info("acceptor: {} [promised: {}] promised: {}", id, null, msg);
             }
             promised = recv.n;
